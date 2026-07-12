@@ -1,0 +1,10 @@
+recursive-include static *
+recursive-include templates *
+include requirements.txt
+include README.md
+include LICENSE
+include launcher.py
+include manage.py
+include .env.example
+exclude .env
+exclude db.sqlite3

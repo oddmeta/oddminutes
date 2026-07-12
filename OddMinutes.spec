@@ -1,0 +1,113 @@
+import sys
+import os
+
+sys.setrecursionlimit(5000)
+
+block_cipher = None
+
+project_dir = os.path.dirname(os.path.abspath(sys.argv[0]))
+
+a = Analysis(
+    ['launcher_packaged.py'],
+    pathex=[project_dir],
+    binaries=[],
+    datas=[
+        ('static', 'static'),
+        ('templates', 'templates'),
+        ('media', 'media'),
+        ('db.sqlite3', '.'),
+        ('.env', '.'),
+        ('requirements.txt', '.'),
+        ('core', 'core'),
+        ('meetings', 'meetings'),
+        ('recording', 'recording'),
+        ('transcription', 'transcription'),
+        ('summary', 'summary'),
+        ('system_app', 'system_app'),
+        ('meeting_minutes', 'meeting_minutes'),
+        ('C:\\Users\\Administrator\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages\\autobahn\\nvx', 'autobahn/nvx'),
+    ],
+    hiddenimports=[
+        'django',
+        'django.db.backends.sqlite3',
+        'django.contrib.admin',
+        'django.contrib.auth',
+        'django.contrib.contenttypes',
+        'django.contrib.sessions',
+        'django.contrib.messages',
+        'django.contrib.staticfiles',
+        'rest_framework',
+        'corsheaders',
+        'channels',
+        'channels.auth',
+        'channels.sessions',
+        'daphne',
+        'pydantic',
+        'ollama',
+        'pyaudio',
+        'sounddevice',
+        'numpy',
+        'scipy',
+        'ffmpeg_python',
+        'pydub',
+        'PIL',
+        'pystray',
+        'pystray._win32',
+        'win32api',
+        'win32con',
+        'win32gui',
+        'win32ui',
+        'win32process',
+        'win32com.client',
+        'keyboard',
+        'pynput.keyboard',
+        'pynput.mouse',
+        'markdown',
+        'bleach',
+        'dateutil',
+        'requests',
+        'websockets',
+        'dotenv',
+        'core',
+        'meetings',
+        'recording',
+        'transcription',
+        'summary',
+        'system_app',
+        'meeting_minutes',
+    ],
+    hookspath=[],
+    hooksconfig={},
+    runtime_hooks=[],
+    excludes=[],
+    win_no_prefer_redirects=False,
+    win_private_assemblies=False,
+    cipher=block_cipher,
+    noarchive=False,
+)
+
+pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
+
+exe = EXE(
+    pyz,
+    a.scripts,
+    [],
+    exclude_binaries=True,
+    name='小奥会议纪要',
+    debug=False,
+    bootloader_ignore_signals=False,
+    strip=False,
+    upx=True,
+    console=False,
+    icon='static/favicon.ico',
+)
+
+coll = COLLECT(
+    exe,
+    a.binaries,
+    a.zipfiles,
+    a.datas,
+    strip=False,
+    upx=True,
+    name='小奥会议纪要',
+)

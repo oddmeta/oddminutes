@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>会议详情</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body class="detail-page">
+    <div class="detail-container">
+        <header class="detail-page-header">
+            <a href="/" class="back-link">← 返回列表</a>
+            <h1 id="page-title">会议详情</h1>
+        </header>
+
+        <main class="detail-page-content">
+            <div class="detail-tabs">
+                <button class="tab-btn active" data-tab="transcript">转录</button>
+                <button class="tab-btn" data-tab="summary">AI 摘要</button>
+                <button class="tab-btn" data-tab="notes">笔记</button>
+            </div>
+
+            <div class="tab-content">
+                <div class="tab-panel active" id="transcript-panel">
+                    <div class="transcript-content" id="transcript-content">
+                        加载中...
+                    </div>
+                </div>
+                <div class="tab-panel" id="summary-panel">
+                    <div class="summary-content" id="summary-content">
+                        加载中...
+                    </div>
+                </div>
+                <div class="tab-panel" id="notes-panel">
+                    <textarea id="notes-editor" class="notes-editor"></textarea>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const MEETING_ID = "{{ meeting_id }}";
+    </script>
+    <script src="{% static 'js/app.js' %}?v=5"></script>
+</body>
+</html>

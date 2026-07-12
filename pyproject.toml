@@ -1,0 +1,77 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "OddMinutes"
+version = "0.1.0"
+description = "小奥会议纪要 OddMinutes - 智能会议录音与纪要系统"
+readme = "README.md"
+authors = [
+    { name = "Catherine", email = "catherine@oddmeta.com" },
+    { name = "Jacky", email = "jacky@oddmeta.com" }
+]
+license = { text = "MIT" }
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Win32 (MS Windows)",
+    "Framework :: Django",
+    "Intended Audience :: End Users/Desktop",
+    "Operating System :: Microsoft :: Windows",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+]
+requires-python = ">=3.12"
+dependencies = [
+    "Django==5.0.7",
+    "djangorestframework==3.15.2",
+    "django-cors-headers==4.4.0",
+    "channels==4.1.0",
+    "daphne==4.1.2",
+    "python-dotenv==1.0.1",
+    "requests==2.32.3",
+    "websockets>=13.0.0,<15.1.0",
+    "aiosqlite==0.21.0",
+    "pydantic>=2.9.0,<3.0.0",
+    "pydantic-ai-slim[openai,anthropic,groq]==0.2.15",
+    "ollama==0.5.2",
+    "sounddevice==0.5.5",
+    "numpy>=1.26.4,<3.0.0",
+    "scipy>=1.18.0,<2.0.0",
+    "ffmpeg-python==0.2.0",
+    "pydub==0.25.1",
+    "pillow==10.4.0",
+    "pystray==0.19.5",
+    "appdirs==1.4.4",
+    "markdown==3.6",
+    "bleach==6.1.0",
+    "python-dateutil==2.9.0",
+]
+
+[project.optional-dependencies]
+windows = [
+    "pywin32>=306",
+    "keyboard==0.13.5",
+    "pynput==1.7.7",
+]
+
+[project.scripts]
+OddMinutes = "OddMinutes.launcher:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["OddMinutes", "OddMinutes.*", "meeting_minutes", "meeting_minutes.*", "core", "core.*", "meetings", "meetings.*", "recording", "recording.*", "transcription", "transcription.*", "summary", "summary.*", "system_app", "system_app.*"]
+
+[tool.setuptools.package-data]
+meeting_minutes = ["settings.py", "urls.py", "asgi.py", "wsgi.py", "static/**/*", "templates/**/*"]
+OddMinutes = ["*.py", "manage.py", ".env.example"]
+core = ["*.py", "migrations/**/*", "management/**/*"]
+meetings = ["*.py", "migrations/**/*"]
+recording = ["*.py", "migrations/**/*"]
+transcription = ["*.py", "migrations/**/*"]
+summary = ["*.py", "migrations/**/*"]
+system_app = ["*.py", "migrations/**/*"]
+
+

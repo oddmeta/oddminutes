@@ -1,0 +1,38 @@
+# Core dependencies
+Django==5.0.7
+djangorestframework==3.15.2
+django-cors-headers==4.4.0
+channels==4.1.0
+channels-redis==4.2.0
+daphne==4.1.2
+python-dotenv==1.0.1
+requests==2.32.3
+websockets>=13.0.0,<15.1.0
+aiosqlite==0.21.0
+
+# AI dependencies
+pydantic>=2.9.0,<3.0.0
+pydantic-ai-slim[openai,anthropic,groq]==0.2.15
+ollama==0.5.2
+
+# Audio processing
+# pyaudio==0.2.14; platform_system == "Windows"  # Not supported on Python 3.14+, using sounddevice instead
+sounddevice==0.5.5
+numpy>=1.26.4,<3.0.0
+scipy>=1.18.0,<2.0.0
+ffmpeg-python==0.2.0
+pydub==0.25.1
+
+# UI/tray dependencies
+pillow==10.4.0
+pystray==0.19.5
+
+# Windows-specific dependencies
+pywin32>=306; platform_system == "Windows"
+keyboard==0.13.5; platform_system == "Windows"
+pynput==1.7.7; platform_system == "Windows"
+
+# Utilities
+markdown==3.6
+bleach==6.1.0
+python-dateutil==2.9.0
