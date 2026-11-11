@@ -1,28 +1,61 @@
-# 小奥会议纪要 OddMinutes - 您的会议纪要小助手
+# 小奥录音 OddMinutes
 
-一个基于 Django 的智能会议纪要系统，支持实时录音、AI 转录、智能摘要生成和音字联动功能。
+> OddMinutes 小奥录音：让沟通的每一分钟，都被听见、被记录、被理解！
+>
+> 录音 · 转录 · 摘要，您的私有AI会议助手，所有数据不上云，安全，不泄露。
+
+开源的智能音频会议系统，支持实时录音、AI 转录、智能摘要生成和音字联动功能，也支持导入已有的音频进行转录、总结。
+
+演示：https://minutes.oddmeta.net
+文档：https://oddmeta.net/docs/oddminutes
+
+## 使用步骤
+
+1. 配置你自己的ASR和LLM服务器，只要支持OpenAI接口的都行。ASR推荐用我的 OddAsr私有部署，LLM推荐用Ollama私有部署或者是任意公有云的。
+2. 导入已有的会议音频，进行转写，并生成会议纪要、会议总结、会议待办事项。
+3. Windows系统上，支持系统托盘，方便快速管理和操作小奥录音
 
 ## 功能特性
 
 - 🎙️ **麦克风 + 系统音频双轨录制** - 支持同时录制麦克风和系统音频，带自动增益控制(AGC)
 - 📝 **AI 实时转录** - 对接 OddASR 服务，支持字级时间戳输出
+- 📑 **同声字幕** - 实时转写结果以悬浮字幕窗口展示，支持拖动位置（默认关闭）
 - 🤖 **智能摘要生成** - 支持 Ollama/OpenAI/Claude/Groq 多种 LLM 提供商
 - 🔗 **音字联动** - 点击文字跳转到音频对应位置，播放时高亮当前文字
-- 📤 **多格式导出** - 支持 TXT、Markdown、JSON 格式导出
+- 📤 **多格式导出** - 支持导出音频、转录文本 PDF、AI 摘要 PDF，打包成 ZIP 下载，PDF 带水印
+- 🗣️ **说话人编辑** - 支持编辑说话人名称，可批量替换同一会议中的相同说话人
 - 🔍 **全文搜索** - 支持转录内容搜索
 - ⏱️ **录音暂停/恢复** - 支持录音过程中暂停和恢复
+- 🎨 **多主题支持** - 提供现代亮色、科技暗色、温暖办公、专注暗色四种主题
+- 🔔 **通知系统** - 支持桌面通知和通知历史管理
+- 👤 **用户认证** - 基于 Token 的用户认证体系，所有业务 API 需登录访问
+- 📋 **系统托盘** - Windows 系统托盘集成，支持快捷操作
+- 🔄 **版本检查** - 自动检测 PyPI 新版本，及时获取更新提醒
 
 ## 快速安装
 
 ```bash
 # 基础安装
-pip install OddMinutes
+pip install oddminutes
 
 # Windows 用户（包含系统托盘和快捷键支持）
-pip install OddMinutes[windows]
+pip install oddminutes[windows]
 
-# 启动程序
+# 启动程序。注意大小写！
 OddMinutes
+```
+
+自定义启动参数
+
+```bash
+# 带控制台窗口调试
+OddMinutes --debug
+
+# 指定端口
+OddMinutes --port 9011
+
+# 不自动打开浏览器
+OddMinutes --no-browser
 ```
 
 首次运行时，程序会自动初始化数据库并创建用户数据目录。
@@ -37,6 +70,8 @@ OddMinutes
 │  - 转录内容展示（音字联动）                                    │
 │  - AI 摘要展示                                               │
 │  - 笔记编辑                                                  │
+│  - 主题切换                                                  │
+│  - 通知系统                                                  │
 └──────────────────────┬──────────────────────────────────────┘
                        │ HTTP / WebSocket
 ┌──────────────────────▼──────────────────────────────────────┐
@@ -87,7 +122,6 @@ OddMinutes/
 │   ├── models.py            # RecordingSession、RecordingCheckpoint、AudioDevice
 │   ├── views.py             # 录音控制 API
 │   ├── urls.py              # 路由配置
-│   ├── audio_recorder.py    # 音频录制器（双轨、AGC、混音）
 │   ├── consumers.py         # WebSocket 电平推送消费者
 │   └── routing.py           # WebSocket 路由
 ├── transcription/           # 转录模块
@@ -106,7 +140,17 @@ OddMinutes/
 │   ├── models.py            # SystemSettings、UpdateInfo、NotificationLog
 │   ├── views.py             # 系统设置、通知、更新检查 API
 │   ├── urls.py              # 路由配置
-│   └── tray_icon.py         # 系统托盘图标
+│   ├── tray_icon.py         # 系统托盘图标
+│   └── shortcuts.py         # 快捷键支持
+├── users/                   # 用户认证模块
+│   ├── models.py            # User 用户模型
+│   ├── views.py             # 注册、登录、Token 认证 API
+│   ├── urls.py              # 路由配置
+│   └── serializers.py       # DRF 序列化器
+├── utils/                   # 通用工具模块（纯函数，无 Django 依赖）
+│   ├── oddpdf.py            # PDF 生成（转录文本、AI 摘要，支持水印）
+│   ├── oddaudio.py          # 音频处理（格式转换、时长检测）
+│   └── oddpunct.py          # 标点恢复（纯文本操作）
 ├── meeting_minutes/         # Django 项目配置
 │   ├── settings.py          # 项目配置
 │   ├── urls.py              # 全局路由
@@ -114,6 +158,7 @@ OddMinutes/
 │   ├── static/              # 静态资源
 │   │   ├── css/style.css    # 样式文件
 │   │   ├── js/app.js        # 前端逻辑
+│   │   ├── images/          # 图片资源
 │   │   └── favicon.ico      # 网站图标
 │   └── templates/           # HTML 模板
 │       └── core/
@@ -121,12 +166,20 @@ OddMinutes/
 │           └── meeting_detail.html  # 会议详情页
 ├── media/                   # 媒体文件存储（音频文件）
 ├── logs/                    # 日志文件
+├── docs/                    # 文档目录
 ├── .env                     # 环境变量配置
 ├── .env.example             # 环境变量示例
 ├── requirements.txt         # Python 依赖
 ├── launcher.py              # 根目录启动脚本
+├── launcher_packaged.py     # 打包后使用的启动脚本
 ├── manage.py                # Django 管理命令
-└── pyproject.toml           # PyPI 打包配置
+├── oddminutes_config.py     # 全局配置加载模块
+├── pyproject.toml           # PyPI 打包配置
+├── OddMinutes.spec          # PyInstaller 打包配置
+├── pack.bat                 # PyInstaller 打包脚本
+├── build_installer.py       # Windows 安装包构建脚本
+├── installer.nsi.template   # NSIS 安装脚本模板
+└── install.bat              # 源码安装脚本（需 Python 环境）
 ```
 
 ## 外部服务依赖
@@ -147,9 +200,11 @@ oddasr-server
 
 **必需** - 用于音频转录，提供 OpenAI 兼容的 `/v1/audio/transcriptions` 接口。
 
-- 默认地址：`http://127.0.0.1:9002`
-- 配置文件：`.env` 中的 `ODDASR_HOST` 和 `ODDASR_PORT`
+- 默认地址：`https://asr.oddmeta.net`（demo），私有部署 `http://127.0.0.1:9002`
+- 配置文件：`.env` 中的 `ODDASR_URL`、`ODDASR_API_KEY`、`ODDASR_MODEL`
 - 支持 `verbose_json` 响应格式，返回段级和字级时间戳
+- 支持说话人分离（`preset_spk_num`、`max_num_spks` 参数）
+- 支持实时流式转写（WebSocket Realtime API）
 
 ### 2. Ollama / LLM 服务
 
@@ -157,7 +212,7 @@ oddasr-server
 
 - 默认地址：`http://localhost:11434`（Ollama）
 - 支持提供商：Ollama（本地）、OpenAI、Claude、Groq
-- 通过 `pydantic-ai` 库统一调用
+- 通过 `pydantic-ai-slim` 库统一调用
 
 ### 3. FFmpeg
 
@@ -189,15 +244,29 @@ OddMinutes
 ```
 
 首次运行时，程序会自动完成以下操作：
+- 自动安装缺失的依赖
 - 初始化数据库（自动执行 migrate）
 - 创建用户数据目录（位于 `%APPDATA%\Local\OddMeta\OddMinutes` 或 `~/.local/share/OddMeta/OddMinutes`）
 - 复制必要的配置文件
 
+**启动参数**
+
+```powershell
+# 指定端口
+OddMinutes --port 9012
+
+# 不自动打开浏览器
+OddMinutes --no-browser
+
+# 显示控制台窗口（调试模式）
+OddMinutes --debug
+```
+
 ### 开发安装（从源码）
 
 ```powershell
-git clone https://github.com/oddmeta/OddMinutes.git
-cd OddMinutes
+git clone https://github.com/oddmeta/oddminutes.git
+cd oddminutes
 
 # 安装开发依赖
 pip install -r requirements.txt
@@ -218,20 +287,28 @@ DEBUG=True
 ALLOWED_HOSTS=localhost,127.0.0.1
 
 # OddASR 配置（必需）
-ODDASR_HOST=127.0.0.1
-ODDASR_PORT=9002
+ODDASR_URL=https://asr.oddmeta.net
+ODDASR_API_KEY=your-oddasr-api-key-here
+ODDASR_MODEL=oddasr2_paraformer
 
-# Ollama 配置（可选，用于本地 LLM）
-OLLAMA_HOST=http://localhost:11434
+# AI 模型配置（用于 AI 摘要）
+AI_MODEL_CONFIGS=[{"id":"a1b2c3","provider":"ollama","model_name":"llama3","base_url":"http://localhost:11434","api_key":"","is_default":false}]
 
 # 音频配置
 AUDIO_SAMPLE_RATE=16000
 AUDIO_CHANNELS=1
 AUDIO_CHUNK_DURATION=5
+AUDIO_ENABLE_SILENCE_TRIM=True
+
+# 同声字幕（默认关闭）
+ENABLE_LIVE_CAPTION=False
 
 # 会议设置
 AUTO_CLEANUP_DAYS=7
 MAX_AUDIO_FILE_SIZE=500
+
+# 开发模式：指定数据目录
+ODDMINUTES_DATA_DIR=.
 ```
 
 **初始化数据库**
@@ -244,17 +321,55 @@ python manage.py init_defaults
 **启动服务**
 
 ```powershell
-# 使用启动脚本
-start.bat
-
-# 或直接运行
-python manage.py runserver 127.0.0.1:9011
-
-# 或使用命令行入口
+# 使用启动脚本（推荐，自动处理依赖和配置）
 python launcher.py
+
+# 或使用调试模式
+python launcher.py --debug
+
+# 或直接运行开发服务器
+python manage.py runserver 127.0.0.1:9011
 ```
 
 服务启动后访问：`http://127.0.0.1:9011`
+
+### Windows 独立安装包
+
+将 OddMinutes 打包为独立的 Windows 安装程序（Setup.exe），无需用户预先安装 Python。
+
+**前提条件**
+
+- 安装 NSIS (Nullsoft Scriptable Install System) 3.0+
+  - 下载地址：https://nsis.sourceforge.io/Download
+  - 安装后确保 `makensis` 在系统 PATH 中
+
+**构建安装包**
+
+```powershell
+# 完整构建（PyInstaller + NSIS）
+python build_installer.py
+
+# 如果已运行过 PyInstaller，可跳过打包步骤
+python build_installer.py --skip-pyinstaller
+```
+
+构建完成后，安装包位于 `dist/OddMinutes-Setup-v{version}.exe`。
+
+**安装包特性**
+
+- 图形化安装向导（简体中文）
+- 默认安装到 `C:\Program Files\OddMinutes`
+- 自动创建桌面快捷方式和开始菜单项
+- 注册控制面板卸载程序
+- 安装完成后可选择立即运行
+
+**旧版打包方式（仅生成可执行文件夹）**
+
+```powershell
+pyinstaller OddMinutes.spec --clean -y
+```
+
+输出位于 `dist/OddMinutes/`，可手动分发整个文件夹。
 
 ### 用户数据目录
 
@@ -277,14 +392,24 @@ python launcher.py
 | `DJANGO_SECRET_KEY` | django-insecure-change-me | 全局 | Django 安全密钥 |
 | `DEBUG` | True | 全局 | 调试模式 |
 | `ALLOWED_HOSTS` | localhost,127.0.0.1 | 全局 | 允许的主机 |
-| `ODDASR_HOST` | 127.0.0.1 | transcription | OddASR 服务主机 |
-| `ODDASR_PORT` | 9002 | transcription | OddASR 服务端口 |
-| `OLLAMA_HOST` | http://localhost:11434 | summary | Ollama 服务地址 |
+| `ODDMINUTES_DATA_DIR` | 自动检测 | 全局 | 数据目录（数据库、音频、媒体） |
+| `ODDASR_URL` | https://asr.oddmeta.net | transcription | OddASR 服务地址 |
+| `ODDASR_API_KEY` | - | transcription | OddASR API Key |
+| `ODDASR_MODEL` | oddasr2_paraformer | transcription | OddASR 模型名称 |
+| `ODDASR_TIMEOUT` | 600 | transcription | ASR 请求超时（秒） |
+| `ODDASR_WS_URL` | 从 ODDASR_URL 推导 | transcription | 实时转写 WebSocket 地址 |
+| `AI_MODEL_CONFIGS` | - | summary | AI 模型配置（JSON 数组） |
 | `AUDIO_SAMPLE_RATE` | 16000 | recording | 音频采样率 |
 | `AUDIO_CHANNELS` | 1 | recording | 音频通道数 |
 | `AUDIO_CHUNK_DURATION` | 5 | recording | 音频块持续时间（秒） |
+| `AUDIO_ENABLE_SILENCE_TRIM` | True | core | 音频静音裁剪（转 MP3 后去头尾静音） |
+| `ENABLE_LIVE_CAPTION` | False | transcription | 同声字幕（实时转写悬浮窗） |
+| `SUMMARY_CHUNK_SIZE` | 5000 | summary | AI 摘要分块大小（字符数） |
+| `SUMMARY_OVERLAP` | 1000 | summary | AI 摘要分块重叠（字符数） |
 | `AUTO_CLEANUP_DAYS` | 7 | meetings | 自动清理天数 |
 | `MAX_AUDIO_FILE_SIZE` | 500 | 全局 | 最大音频文件大小（MB） |
+| `AUTO_CHECK_UPDATE` | True | system_app | 启动时自动检查更新 |
+| `UPDATE_CHECK_INTERVAL_DAYS` | 7 | system_app | 自动检查间隔天数 |
 
 ## API 接口
 
@@ -297,22 +422,22 @@ python launcher.py
 | GET | `/api/meetings/{id}/` | 获取会议详情 |
 | PUT/PATCH | `/api/meetings/{id}/` | 更新会议信息 |
 | DELETE | `/api/meetings/{id}/` | 删除会议 |
-| POST | `/api/meetings/{id}/export/` | 导出会议（支持 txt/md/json） |
+| POST | `/api/meetings/{id}/export/` | 导出会议（音频/转录PDF/摘要PDF，打包ZIP，需登录） |
 | POST | `/api/meetings/search/` | 搜索转录内容 |
 | POST | `/api/meetings/cleanup/` | 清理旧会议 |
 | PATCH | `/api/meetings/transcript-segments/{id}/` | 更新转录片段 |
+| PATCH | `/api/meetings/transcript-segments/{id}/speaker/` | 更新说话人名称（支持批量替换） |
 
 ### 录音控制 `/api/recording/`
 
 | 方法 | 路径 | 说明 |
 |------|------|------|
-| GET | `/api/recording/devices/` | 获取音频设备列表 |
 | POST | `/api/recording/start/` | 开始录音 |
 | POST | `/api/recording/pause/` | 暂停录音 |
 | POST | `/api/recording/resume/` | 恢复录音 |
 | POST | `/api/recording/stop/` | 停止录音 |
-| GET | `/api/recording/level/` | 获取当前音频电平 |
 | GET | `/api/recording/status/` | 获取录音状态 |
+| POST | `/api/recording/upload-chunk/` | 上传音频块 |
 
 ### 转录服务 `/api/transcription/`
 
@@ -389,26 +514,27 @@ python launcher.py
 
 2. **开始录音** → POST `/api/recording/start/`
    - 选择麦克风设备和可选的系统音频设备
-   - `AudioRecorder.start()` 启动双轨录制
-   - 开启 AGC（自动增益控制），保持目标 RMS 电平 8000
+   - 前端使用 MediaRecorder API 采集音频（webm/opus 格式）
    - 实时计算音频电平，通过 WebSocket 推送到前端
 
 3. **录音过程**
-   - 麦克风和系统音频分别采集（16kHz, 单声道, 16-bit）
-   - 应用 AGC 增益控制
-   - 混音处理（麦克风 55% + 系统音频 55%），带软压限防止削波
-   - 每 5 秒生成音频块，触发转录回调
+   - 前端麦克风采集（48kHz, 单声道），使用 webm/opus 格式
+   - 音频块通过 POST `/api/recording/upload-chunk/` 上传到后端
+   - 后端处理 webm 分片合并（跳过重复的 EBML 头）
+   - 录音状态存储在数据库（RecordingSession 模型）
 
 4. **停止录音** → POST `/api/recording/stop/`
-   - 合并缓冲区数据，编码为 WAV 格式
-   - 保存到 `media/audio/meetings/{date}/{filename}.wav`
+   - 进入 "stopping" 宽限期（6秒），处理迟到的音频分片
+   - 宽限期结束后，合并缓冲区数据
+   - 保存到 `media/audio/meetings/{date}/{filename}.webm`
    - 自动转换为 MP3 格式（`audio_utils.convert_audio_to_mp3`）
+   - 自动触发 ASR 转录
    - 更新 Meeting 状态为 completed
 
 5. **转录音频** → POST `/api/transcription/transcribe/`
    - 创建 TranscriptionJob（status=processing）
    - 后台线程调用 OddASR 客户端
-   - 请求格式：`model=whisper-1`, `response_format=verbose_json`, `timestamp_granularities[]=word`
+   - 请求格式：`model=oddasr2_paraformer`, `response_format=verbose_json`, `timestamp_granularities[]=word`
    - OddASR 返回包含 `segments` 和 `words` 的 JSON 数据
 
 6. **保存转录结果**
@@ -419,7 +545,7 @@ python launcher.py
 7. **生成摘要** → POST `/api/summary/generate/`
    - 创建 SummaryProcess（status=processing）
    - 合并所有转录文本
-   - 按 chunk_size=5000、overlap=1000 分段
+   - 按 chunk_size（默认 5000）、overlap（默认 1000）分段，可在系统设置中配置
    - 每段调用 LLM（默认 Ollama/Qwen3-8B）生成结构化摘要
    - 聚合所有 chunk 的摘要结果
 
@@ -516,8 +642,8 @@ RecordingSession (录音会话)
 ### 转录编辑模式
 
 支持对转录内容进行编辑：
-- 编辑转录文本
-- 修改发言人名称
+- 编辑转录文本（逐段编辑，悬浮显示编辑按钮）
+- 修改发言人名称，支持批量替换同一会议中的相同说话人
 - 批量保存修改
 
 ### 实时电平监测
@@ -531,6 +657,40 @@ RecordingSession (录音会话)
 
 支持在所有会议的转录内容中进行全文搜索，返回匹配的会议列表和上下文。
 
+### 主题系统
+
+提供四种主题风格：
+- **modern-light** - 现代亮色主题
+- **tech-dark** - 科技暗色主题
+- **warm-office** - 温暖办公主题
+- **focus-dark** - 专注暗色主题
+
+### 通知系统
+
+- 桌面通知（页面不可见时）
+- 通知历史记录（最多保存 200 条）
+- 未读通知计数
+- 标记已读/全部已读
+- 通知标题带会议名称前缀，方便定位
+
+### 同声字幕
+
+录音过程中可开启实时字幕功能：
+- 结合 OddASR 实时转写，首字时延低至 500ms
+- 悬浮字幕窗口，支持拖动调整位置
+- 三行滚动显示，区分已确认文本和识别中文本
+- 默认关闭，需在系统设置中开启（`ENABLE_LIVE_CAPTION`）
+
+### 导出功能
+
+支持将会议内容导出为多种格式：
+- 音频文件（MP3）
+- 转录文本 PDF（带产品水印和页眉页脚）
+- AI 摘要 PDF（带产品水印和页眉页脚）
+- 智能检查已有 PDF 缓存，避免重复生成
+- 自动打包成 ZIP 下载，文件名使用会议名称
+- 导出接口需登录后才能操作
+
 ## 技术栈
 
 | 分类 | 技术 |
@@ -538,18 +698,23 @@ RecordingSession (录音会话)
 | 后端框架 | Django 5.0.7 |
 | API 框架 | Django REST Framework 3.15.2 |
 | WebSocket | Django Channels 4.1.0 |
+| ASGI 服务器 | Daphne 4.1.2 |
 | 数据库 | SQLite（默认） |
-| 音频录制 | sounddevice |
-| 音频处理 | pydub、numpy、scipy |
+| 音频录制 | 前端 MediaRecorder API（webm/opus） |
+| 音频处理 | pydub、numpy、scipy、ffmpeg-python |
 | 语音识别 | OddASR（OpenAI 兼容） |
-| AI 摘要 | pydantic-ai（Ollama/OpenAI/Claude/Groq） |
+| AI 摘要 | pydantic-ai-slim（Ollama/OpenAI/Claude/Groq） |
 | 前端 | HTML5、CSS3、JavaScript（原生） |
+| 系统托盘 | pystray + pywin32（Windows） |
 
 ## 开发命令
 
 ```powershell
-# 启动开发服务器
-python manage.py runserver 127.0.0.1:9011
+# 启动开发服务器（使用 daphne，推荐）
+python launcher.py
+
+# 启动调试模式（显示控制台）
+python launcher.py --debug
 
 # 创建数据库迁移
 python manage.py makemigrations
@@ -557,7 +722,7 @@ python manage.py makemigrations
 # 执行数据库迁移
 python manage.py migrate
 
-# 初始化默认数据
+# 初始化默认数据（必需）
 python manage.py init_defaults
 
 # 创建超级用户
@@ -568,7 +733,27 @@ python manage.py shell
 
 # 运行测试
 python manage.py test
+
+# 构建 PyInstaller 可执行文件夹
+pyinstaller OddMinutes.spec --clean -y
+
+# 构建 Windows 安装包（需先安装 NSIS）
+python build_installer.py
+
+# 构建 Windows 安装包（跳过 PyInstaller 步骤）
+python build_installer.py --skip-pyinstaller
 ```
+
+## 系统托盘功能
+
+Windows 系统托盘支持以下操作：
+- **显示窗口** - 打开浏览器访问应用
+- **新建会议** - 创建新的会议记录
+- **开始录音** - 启动录音（自动创建会议）
+- **暂停录音** - 暂停当前录音
+- **恢复录音** - 恢复暂停的录音
+- **停止录音** - 停止录音并处理音频
+- **退出** - 停止服务并退出
 
 ## 注意事项
 
@@ -577,6 +762,8 @@ python manage.py test
 3. **Ollama**：使用本地 LLM 生成摘要时，需先 `ollama pull qwen3:8b` 下载模型
 4. **音频设备权限**：首次使用录音功能时需授予麦克风权限
 5. **系统音频录制**：Windows 下录制系统音频需要启用立体声混音设备或使用虚拟音频线缆
+6. **数据目录**：默认数据存储在用户目录，开发时可设置 `ODDMINUTES_DATA_DIR` 指定项目根目录
+7. **开发模式**：使用 `python manage.py runserver` 时建议添加 `--noreload` 参数避免多进程状态问题
 
 ## License
 
